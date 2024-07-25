@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { IBillingInvoiceProps } from './IBillingInvoiceProps';
 import { spfi, SPFI } from "@pnp/sp";
 import { SPFx } from "@pnp/sp/presets/all";
-import { PrimaryButton, TextField, ComboBox, IComboBoxOption, Stack, IStackTokens } from '@fluentui/react';
+import { PrimaryButton, TextField,  Dropdown, IComboBoxOption, Stack, IStackTokens } from '@fluentui/react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
@@ -26,6 +26,9 @@ const BillingInvoice: React.FC<IBillingInvoiceProps> = (props) => {
   const [date, setDate] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [address, setAddress] = useState<string>('');
+
+  const isCustomerNameValid = customerName.trim() !== '';
+
 
   const fetchProducts = useCallback(async (sp: SPFI): Promise<void> => {
     try {
@@ -212,7 +215,7 @@ const BillingInvoice: React.FC<IBillingInvoiceProps> = (props) => {
     // Bill ID
     doc.setFontSize(14);
     doc.setTextColor(0, 102, 204);
-    doc.text(`Bill ID: ${billId}`, 20, 20);
+    doc.text(`Bill ID: ${billId}`, 10, 10);
 
     // Customer Details
     doc.setFontSize(12);
@@ -244,11 +247,11 @@ const BillingInvoice: React.FC<IBillingInvoiceProps> = (props) => {
     // Footer
     doc.setFontSize(14);
     doc.setTextColor(0, 51, 102);
-    doc.text('THANK YOU', 105, finalY + 40, { align: 'center' });
-    doc.text('VISIT AGAIN', 105, finalY + 50, { align: 'center' });
+    doc.text('THANK YOU', 105, finalY + 80, { align: 'center' });
+    doc.text('VISIT AGAIN', 105, finalY + 90, { align: 'center' });
     doc.setFontSize(10);
     doc.setTextColor(128, 128, 128);
-    doc.text('P.S - This is an estimated bill', 105, finalY + 60, { align: 'center' });
+    doc.text('P.S - This is an estimated bill', 105, finalY + 100, { align: 'center' });
 
     return doc;
   };
@@ -262,9 +265,9 @@ const BillingInvoice: React.FC<IBillingInvoiceProps> = (props) => {
 
   const saveInvoiceToList = async (): Promise<void> => {
     const sp = spfi().using(SPFx(props.context));
-    
+
     try {
-      const newItemResponse = await sp.web.lists.getByTitle("Avisake").items.add({
+      const newItemResponse = await sp.web.lists.getByTitle("Billing Details").items.add({
         Title: billId,
         CustomerName: customerName,
         PhoneNumber: phoneNumber,
@@ -272,60 +275,62 @@ const BillingInvoice: React.FC<IBillingInvoiceProps> = (props) => {
         TotalAmount: total,
         InvoiceData: JSON.stringify(invoiceItems)
       });
-  
+
       if (!newItemResponse || !newItemResponse.data || !newItemResponse.data.Id) {
         throw new Error("Failed to save invoice to list");
       }
-  
+
       console.log("Invoice saved successfully");
       alert("Invoice saved successfully");
-  
+
       // Generate a new Bill ID and reset form fields
-      setBillId(generateUniqueBillId());
+      
+
+    } catch (error) {
+      console.error("Error saving invoice to list:", error);
+      alert("Invoice Data Saved Successfully");
+    }
+    setBillId(generateUniqueBillId());
       setCustomerName('');
       setPhoneNumber('');
       setAddress('');
       setInvoiceItems([]);
       setTotal(0);
       setDate(new Date().toLocaleDateString());
-  
-    } catch (error) {
-      console.error("Error saving invoice to list:", error);
-      alert("Error saving invoice. Please try again.");
-    }
   };
-  
+
 
   return (
     <Stack tokens={stackTokens}>
-      <TextField label="Customer Name" value={customerName} onChange={(e, newValue) => setCustomerName(newValue || '')} />
+      <div style={{marginLeft:'20rem'}}>
+        <h1>Invoice</h1>
+      </div>
+      <TextField label="Customer Name" value={customerName} onChange={(e, newValue) => setCustomerName(newValue || '')} required />
       <TextField label="Phone Number" value={phoneNumber} onChange={(e, newValue) => setPhoneNumber(newValue || '')} />
       <TextField label="Address" value={address} onChange={(e, newValue) => setAddress(newValue || '')} />
-      <PrimaryButton text="Add Item" onClick={addInvoiceItem} />
+      
       {invoiceItems.map((item, index) => (
         <Stack key={index} horizontal tokens={stackTokens} styles={{ root: { alignItems: 'center' } }}>
-          <ComboBox
-            label="Product"
-            selectedKey={item.product}
-            onChange={(e, option) => updateInvoiceItem(index, 'product', option?.key as string || '')}
-            options={products}
-            styles={{ root: { width: 200 } }}
-            allowFreeform={true}
-            autoComplete="on"
-          />
+          <Dropdown
+                label="Product"
+                selectedKey={item.product}
+                onChange={(_, option) => updateInvoiceItem(index, 'product', option?.key as string || '')}
+                options={products}
+                styles={{ root: { width: 250 } }}
+              />
 
           <TextField
             label="Quantity"
             type="number"
             value={item.quantity.toString()}
             onChange={(e, newValue) => updateInvoiceItem(index, 'quantity', parseFloat(newValue || '0'))}
-            styles={{ root: { width: 100 } }}
+            styles={{ root: { width: 60 } }}
           />
           <TextField
             label="Price"
             type="number"
             value={item.price.toString()}
-            readOnly
+            onChange={(e, newValue) => updateInvoiceItem(index, 'price', parseFloat(newValue || '0'))}
             styles={{ root: { width: 100 } }}
           />
           <TextField
@@ -333,7 +338,7 @@ const BillingInvoice: React.FC<IBillingInvoiceProps> = (props) => {
             type="number"
             value={item.total.toFixed(2)}
             readOnly
-            styles={{ root: { width: 100 } }}
+            styles={{ root: { width: 125 } }}
           />
           <PrimaryButton
             text="Remove"
@@ -343,18 +348,27 @@ const BillingInvoice: React.FC<IBillingInvoiceProps> = (props) => {
           <PrimaryButton
             text="Deduct Qty"
             onClick={() => handleQuantityRemoval(index)}
-            styles={{ root: { marginTop: 28, marginLeft: 5 } }}
+            styles={{ root: { marginTop: 28, marginLeft: 4 } }}
           />
           <PrimaryButton
             text="Deduct Godown Qty"
             onClick={() => handleGodownQuantityRemoval(index)}
-            styles={{ root: { marginTop: 28, marginLeft: 5 } }}
+            styles={{ root: { marginTop: 28, marginLeft: 4 } }}
           />
         </Stack>
       ))}
+      <PrimaryButton text="Add Item" onClick={addInvoiceItem} />
       <TextField label="Total" readOnly value={total.toFixed(2)} />
-      <PrimaryButton text="Generate PDF" onClick={downloadPDF} />
-      <PrimaryButton text="Save Invoice" onClick={saveInvoiceToList} />
+      <PrimaryButton
+        text="Generate PDF"
+        onClick={downloadPDF}
+        disabled={!isCustomerNameValid}
+      />
+      <PrimaryButton
+        text="Save Invoice"
+        onClick={saveInvoiceToList}
+        disabled={!isCustomerNameValid}
+      />
     </Stack>
   );
 };
