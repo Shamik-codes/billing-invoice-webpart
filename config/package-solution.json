@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "billing-invoice-client-side-solution",
+    "id": "30160ded-0b65-4023-82f5-992831fc8b9c",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "https://s0lyg.sharepoint.com/sites/SanyasiTraders/",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.19.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "Billing Invoice description"
+      },
+      "longDescription": {
+        "default": "Billing Invoice description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "billing-invoice Feature",
+        "description": "The feature that activates elements of the billing-invoice solution.",
+        "id": "17deb8cc-29ea-4bc3-a2d9-a9f0b9f26e99",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/billing-invoice.sppkg"
+  }
+}

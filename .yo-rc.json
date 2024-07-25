@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "16.20.2",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.12.0"
+    },
+    "version": "1.19.0",
+    "libraryName": "billing-invoice",
+    "libraryId": "30160ded-0b65-4023-82f5-992831fc8b9c",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "Billing Invoice",
+    "solutionShortDescription": "Billing Invoice description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
