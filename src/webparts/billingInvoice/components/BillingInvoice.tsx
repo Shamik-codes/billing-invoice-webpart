@@ -45,8 +45,8 @@ const BillingInvoice: React.FC<IBillingInvoiceProps> = (props) => {
 
   const generateUniqueBillId = () => {
     const today = new Date();
-    const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    return `SNST/${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${randomSuffix}`;
+    const randomSuffix = Math.floor(Math.random() * 10000).toString().padStart(3, '0');
+    return `SNST/${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getDate()}/${randomSuffix}`;
   };
 
   useEffect(() => {
@@ -163,12 +163,76 @@ const BillingInvoice: React.FC<IBillingInvoiceProps> = (props) => {
     }
   };
 
+  // const numberToWords = (num: number): string => {
+  //   const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+  //   const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+  //   const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+  //   const scales = ['', 'Thousand', 'Lakh', 'Crore'];
+
+  //   const convertLessThanOneThousand = (n: number): string => {
+  //     if (n === 0) return '';
+  //     else if (n < 10) return units[n];
+  //     else if (n < 20) return teens[n - 10];
+  //     else if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + units[n % 10] : '');
+  //     else return units[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + convertLessThanOneThousand(n % 100) : '');
+  //   };
+
+  //   if (num === 0) return 'Zero';
+
+  //   let result = '';
+  //   let scaleIndex = 0;
+
+  //   while (num > 0) {
+  //     if (num % 1000 !== 0) {
+  //       result = convertLessThanOneThousand(num % 1000) + ' ' + scales[scaleIndex] + ' ' + result;
+  //     }
+  //     num = Math.floor(num / 1000);
+  //     scaleIndex++;
+  //   }
+
+  //   return result.trim();
+  // };
+
+  // const numberToWords = (num: number): string => {
+  //   const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+  //   const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+  //   const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+  //   const scales = ['', 'Thousand', 'Lakh', 'Crore'];
+  
+  //   const convertLessThanOneThousand = (n: number): string => {
+  //     if (n === 0) return '';
+  //     else if (n < 10) return units[n];
+  //     else if (n < 20) return teens[n - 10];
+  //     else if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + units[n % 10] : '');
+  //     else return units[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + convertLessThanOneThousand(n % 100) : '');
+  //   };
+  
+  //   if (num === 0) return 'Zero';
+  
+  //   let result = '';
+  //   let scaleIndex = 0;
+  
+  //   while (num > 0) {
+  //     // Change: Adjusted condition to ensure 'Hundred' part is handled correctly within scales
+  //     if (num % 100 !== 0 || scaleIndex === 0) { 
+  //       result = convertLessThanOneThousand(num % 1000) + ' ' + scales[scaleIndex] + ' ' + result;
+  //     }
+  //     num = Math.floor(num / 100);
+  //     if (scaleIndex === 1) { // Change: Move scale index only when it crosses thousands
+  //       num = Math.floor(num / 10);
+  //     }
+  //     scaleIndex++;
+  //   }
+  
+  //   return result.trim();
+  // };
+
   const numberToWords = (num: number): string => {
     const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
     const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
     const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
     const scales = ['', 'Thousand', 'Lakh', 'Crore'];
-
+  
     const convertLessThanOneThousand = (n: number): string => {
       if (n === 0) return '';
       else if (n < 10) return units[n];
@@ -176,22 +240,37 @@ const BillingInvoice: React.FC<IBillingInvoiceProps> = (props) => {
       else if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + units[n % 10] : '');
       else return units[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + convertLessThanOneThousand(n % 100) : '');
     };
-
+  
     if (num === 0) return 'Zero';
-
+  
     let result = '';
     let scaleIndex = 0;
-
+  
     while (num > 0) {
-      if (num % 1000 !== 0) {
-        result = convertLessThanOneThousand(num % 1000) + ' ' + scales[scaleIndex] + ' ' + result;
+      let part;
+      if (scaleIndex === 1) {
+        part = num % 100;
+        num = Math.floor(num / 100);
+      } else {
+        part = num % 1000;
+        num = Math.floor(num / 1000);
       }
-      num = Math.floor(num / 1000);
+  
+      if (part > 0) {
+        result = convertLessThanOneThousand(part) + ' ' + scales[scaleIndex] + ' ' + result;
+      }
+  
       scaleIndex++;
     }
-
+  
     return result.trim();
   };
+  
+  // Example usage
+  console.log(numberToWords(100000)); // "One Lakh"
+  console.log(numberToWords(1234567)); // "Twelve Lakh Thirty Four Thousand Five Hundred Sixty Seven"
+  
+  
 
   const generatePDF = (): jsPDF => {
     const doc = new jsPDF();
