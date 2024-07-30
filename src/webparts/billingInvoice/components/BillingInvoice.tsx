@@ -6,6 +6,7 @@ import { SPFx } from "@pnp/sp/presets/all";
 import { PrimaryButton, TextField,  Dropdown, IComboBoxOption, Stack, IStackTokens } from '@fluentui/react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { ToWords } from 'to-words';
 
 interface IInvoiceItem {
   product: string;
@@ -163,112 +164,9 @@ const BillingInvoice: React.FC<IBillingInvoiceProps> = (props) => {
     }
   };
 
-  // const numberToWords = (num: number): string => {
-  //   const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-  //   const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-  //   const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-  //   const scales = ['', 'Thousand', 'Lakh', 'Crore'];
-
-  //   const convertLessThanOneThousand = (n: number): string => {
-  //     if (n === 0) return '';
-  //     else if (n < 10) return units[n];
-  //     else if (n < 20) return teens[n - 10];
-  //     else if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + units[n % 10] : '');
-  //     else return units[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + convertLessThanOneThousand(n % 100) : '');
-  //   };
-
-  //   if (num === 0) return 'Zero';
-
-  //   let result = '';
-  //   let scaleIndex = 0;
-
-  //   while (num > 0) {
-  //     if (num % 1000 !== 0) {
-  //       result = convertLessThanOneThousand(num % 1000) + ' ' + scales[scaleIndex] + ' ' + result;
-  //     }
-  //     num = Math.floor(num / 1000);
-  //     scaleIndex++;
-  //   }
-
-  //   return result.trim();
-  // };
-
-  // const numberToWords = (num: number): string => {
-  //   const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-  //   const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-  //   const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-  //   const scales = ['', 'Thousand', 'Lakh', 'Crore'];
+  const toWords = new ToWords();
   
-  //   const convertLessThanOneThousand = (n: number): string => {
-  //     if (n === 0) return '';
-  //     else if (n < 10) return units[n];
-  //     else if (n < 20) return teens[n - 10];
-  //     else if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + units[n % 10] : '');
-  //     else return units[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + convertLessThanOneThousand(n % 100) : '');
-  //   };
   
-  //   if (num === 0) return 'Zero';
-  
-  //   let result = '';
-  //   let scaleIndex = 0;
-  
-  //   while (num > 0) {
-  //     // Change: Adjusted condition to ensure 'Hundred' part is handled correctly within scales
-  //     if (num % 100 !== 0 || scaleIndex === 0) { 
-  //       result = convertLessThanOneThousand(num % 1000) + ' ' + scales[scaleIndex] + ' ' + result;
-  //     }
-  //     num = Math.floor(num / 100);
-  //     if (scaleIndex === 1) { // Change: Move scale index only when it crosses thousands
-  //       num = Math.floor(num / 10);
-  //     }
-  //     scaleIndex++;
-  //   }
-  
-  //   return result.trim();
-  // };
-
-  const numberToWords = (num: number): string => {
-    const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-    const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-    const scales = ['', 'Thousand', 'Lakh', 'Crore'];
-  
-    const convertLessThanOneThousand = (n: number): string => {
-      if (n === 0) return '';
-      else if (n < 10) return units[n];
-      else if (n < 20) return teens[n - 10];
-      else if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + units[n % 10] : '');
-      else return units[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + convertLessThanOneThousand(n % 100) : '');
-    };
-  
-    if (num === 0) return 'Zero';
-  
-    let result = '';
-    let scaleIndex = 0;
-  
-    while (num > 0) {
-      let part;
-      if (scaleIndex === 1) {
-        part = num % 100;
-        num = Math.floor(num / 100);
-      } else {
-        part = num % 1000;
-        num = Math.floor(num / 1000);
-      }
-  
-      if (part > 0) {
-        result = convertLessThanOneThousand(part) + ' ' + scales[scaleIndex] + ' ' + result;
-      }
-  
-      scaleIndex++;
-    }
-  
-    return result.trim();
-  };
-  
-  // Example usage
-  console.log(numberToWords(100000)); // "One Lakh"
-  console.log(numberToWords(1234567)); // "Twelve Lakh Thirty Four Thousand Five Hundred Sixty Seven"
   
   
 
@@ -321,7 +219,7 @@ const BillingInvoice: React.FC<IBillingInvoiceProps> = (props) => {
     doc.text(`ALL TOTAL: ${total.toFixed(2)} /-`, 20, finalY + 10);
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
-    doc.text(`IN WORDS: ${numberToWords(total)} Rupees only.`, 20, finalY + 20);
+    doc.text(`IN WORDS: ${toWords.convert(total)} Rupees only.`, 20, finalY + 20);
 
     // Footer
     doc.setFontSize(14);
